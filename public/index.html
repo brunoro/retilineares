@@ -1,0 +1,63 @@
+<html>
+<head>
+    <style type="text/css">
+        #img {
+            height: 100%;
+            width: 100%; 
+            z-index: 1;
+        }
+       #controls {
+            position: absolute;
+            top: 30%;
+            left: 5%;
+            z-index: 2;
+            background-color: #4a7365;
+            border-color: #454545;
+            border-style: solid;
+            border-width: 5px;
+            color: white;
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 5px;
+            min-width: 172px;
+        }
+        .control-title {
+            font-weight: regular;
+        }
+        .control-val {
+            font-weight: bold;
+            font-size: 20pt;
+            line-height: 10pt;
+        }
+        .slider {
+            -webkit-appearance: none; 
+            appearance: none;
+            width: 168px; 
+            height: 15px; 
+            outline: none; 
+            opacity: 0.7; 
+            -webkit-transition: .2s; 
+            transition: opacity .2s;
+        }
+        .slider:hover {
+            opacity: 1; 
+        }
+    </style>
+</head>
+<body>
+    <div id="img"></div>
+    <div id="controls">
+        <p class="control-title">bpm</p>
+        <p class="control-val"><span id="bpm-span">120</span></p>
+        <p><input type="range" min="60" max="200" value="120" class="freq-slider" id="bpm-slider"></p>
+
+        <p class="control-title">freq</p>
+        <p class="control-val"><span id="freq-span">120</span></p>
+        <p><input type="range" min="60" max="1200" value="120" class="slider" id="freq-slider"></p>
+
+        <button id="start-btn">start</button>
+        <button id="stop-btn">stop</button>
+    </div>
+
+    <script src="bundle.js"></script>
+</body>
+</html>
