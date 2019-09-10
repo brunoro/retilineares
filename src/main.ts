@@ -70,17 +70,35 @@ const getPixel = (x: number, y: number): Pixel => {
 
 type Point = [number, number]
 let points: Array<Point> = []
-let step = 0
+let cursor: Point = [0, 0]
+let step = 1
 
 const redraw = () => {
     ctx.drawImage(img, 0, 0, img.width, img.height);
     points.forEach(([x, y]: Point, i: number) => {
-        if (step % points.length == i) {
-            ctx.strokeRect(x, y, 20, 20);
-        } else {
-            ctx.strokeRect(x, y, 10, 10);
-        }
+        ctx.strokeStyle = 'black'
+        ctx.strokeRect(x, y, 10, 10);
     })
+    ctx.strokeStyle = 'purple'
+    ctx.strokeRect(cursor[0], cursor[1], 10, 10);
+}
+
+const updateCursor = () => {
+    const [x, y] = cursor
+    const [nx, ny]= points[step % points.length]
+
+    const dx = nx - x
+    const dy = ny - y
+
+    const d = Math.sqrt(Math.pow(dy, 2) + Math.pow(dy, 2))
+    const l = 5
+
+    cursor = [x + l*dx/d, y + l*dy/d]
+
+    const [cx, cy] = cursor
+    if (Math.sqrt(Math.pow(nx - cx, 2) + Math.pow(ny - cy,2)) <= l) {
+        step++
+    }
 }
 
 canvas.onclick = (e: MouseEvent) => {
@@ -122,16 +140,18 @@ bpmSlider.oninput = updateBPM
 updateBPM()
 
 // freq
-const updateFreq = (step: number) => {
+const updateFreq = () => {
     if (points.length > 0) {
-        let i = step % points.length
-        const [x, y] = points[i]
+        let [x, y] = cursor
         console.log("p", x, y)
         const c = getPixel(x, y)
         console.log("c", c)
         const [h, s, l] = rgb2hsl(c)
         console.log("h", h)
-        const freq = h + 100
+
+        const base = 60
+        const mult = Math.ceil(h / 32.0) * 5/4 + 1
+        const freq = base * mult
         console.log("freq", freq)
 
         osc.frequency.value = freq
@@ -145,7 +165,8 @@ const startBtn = document.getElementById("start-btn")
 const oscStart = () => { 
     if (points.length > 0) {
         isPlaying = true
-        step = 0
+        cursor = points[0]
+        step = 1
         tick()
         osc.start(audioContext.currentTime)
     }
@@ -175,12 +196,11 @@ clearBtn.onclick = () => {
 }
 
 const tick = () => {
-    console.log("tick!", step)
-    updateFreq(step)
-    step++
+    updateCursor()
+    updateFreq()
 
     if (isPlaying) {
-        setTimeout(tick, 1000 * 60.0 / bpm)
+        setTimeout(tick, 100 * 60.0 / bpm)
     }
     redraw()
 }
