@@ -1,15 +1,25 @@
 <html>
 <head>
     <style type="text/css">
+        body {
+            margin: 0;
+        }
         #img {
             height: 100%;
-            width: 100%; 
+            left: 20%;
             z-index: 1;
+            align-content: center;
         }
-       #controls {
+        #canvas {
+            height: 100%;
+            left: 20%;
+            z-index: 1;
+            align-content: center;
+        }
+        #controls {
             position: absolute;
             top: 30%;
-            left: 5%;
+            left: 60%;
             z-index: 2;
             background-color: #4a7365;
             border-color: #454545;
@@ -19,6 +29,9 @@
             font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 5px;
             min-width: 172px;
+        }
+        #colors {
+            display: flex;
         }
         .control-title {
             font-weight: regular;
@@ -44,18 +57,16 @@
     </style>
 </head>
 <body>
-    <div id="img"></div>
+    <canvas id="canvas"></canvas>
+    <img id="img" src="img/1.png"></img>
     <div id="controls">
         <p class="control-title">bpm</p>
         <p class="control-val"><span id="bpm-span">120</span></p>
         <p><input type="range" min="60" max="200" value="120" class="freq-slider" id="bpm-slider"></p>
 
-        <p class="control-title">freq</p>
-        <p class="control-val"><span id="freq-span">120</span></p>
-        <p><input type="range" min="60" max="1200" value="120" class="slider" id="freq-slider"></p>
-
         <button id="start-btn">start</button>
         <button id="stop-btn">stop</button>
+        <button id="clear-btn">clear</button>
     </div>
 
     <script src="bundle.js"></script>
