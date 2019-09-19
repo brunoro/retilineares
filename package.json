@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "adsr-envelope": "^1.0.0",
+    "svg.js": "^2.7.1",
     "tonal": "^2.0.0",
     "ts-loader": "^5.2.2",
     "web-audio-oscillators": "^1.0.4"

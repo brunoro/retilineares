@@ -1,31 +1,26 @@
 <html>
 <head>
+    <title>zubeise_player</title>
     <style type="text/css">
         body {
             margin: 0;
         }
-        #img {
+        #container {
+            background-color: lightpink,
+            overflow: hidden;
             height: 100%;
-            left: 20%;
-            z-index: 1;
-            align-content: center;
-        }
-        #canvas {
-            height: 100%;
-            left: 20%;
-            z-index: 1;
-            align-content: center;
+            width: auto;
         }
         #controls {
             position: absolute;
             top: 30%;
             left: 60%;
             z-index: 2;
-            background-color: #4a7365;
+            background-color: white;
             border-color: #454545;
             border-style: solid;
-            border-width: 5px;
-            color: white;
+            border-width: 2px;
+            color:#333;
             font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 5px;
             min-width: 172px;
@@ -57,8 +52,7 @@
     </style>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
-    <img id="img" src="img/1.png"></img>
+    <object id="container" data="test.svg" type="image/svg+xml"></object>
     <div id="controls">
         <p class="control-title">bpm</p>
         <p class="control-val"><span id="bpm-span">120</span></p>
@@ -66,7 +60,6 @@
 
         <button id="start-btn">start</button>
         <button id="stop-btn">stop</button>
-        <button id="clear-btn">clear</button>
     </div>
 
     <script src="bundle.js"></script>
