@@ -1,58 +1,39 @@
 // @ts-ignore
-import Oscillators from 'web-audio-oscillators';
 import * as SVG from 'svg.js';
-import { rgb2hsl } from './util';
+// import { rgb2hsl } from './util';
+import { MonoSynth, SynthPlayer } from './osc';
 
 class Slice {
     isPlaying: boolean;
+    freq: number;
 
     audioCtx: AudioContext;
-    osc0: OscillatorNode;
-    osc1: OscillatorNode;
-    gain: GainNode;
-    filter: BiquadFilterNode;
-
     rect: SVG.Rect;
+    synthPlayer: SynthPlayer;
 
-    constructor(rect: SVG.Rect, audioCtx: AudioContext) {
+    constructor(rect: SVG.Rect, synthPlayer: SynthPlayer) {
         this.isPlaying = false;
 
         this.rect = rect;
-        this.audioCtx = audioCtx;
-    }
-
-    play() {
-        this.osc0 = Oscillators.sine(this.audioCtx);
-        this.osc1 = Oscillators.sine(this.audioCtx);
-        this.gain = this.audioCtx.createGain();
-        this.filter = this.audioCtx.createBiquadFilter();
-
-        this.osc0.connect(this.gain);
-        this.osc1.connect(this.gain);
-        this.gain.connect(this.filter);
-        this.filter.connect(this.audioCtx.destination);
 
         const fill = this.rect.style('fill');
         const col = new SVG.Color(fill);
         const b = col.brightness();
-        const freq = b * 220 + 60;
-        const [h, s, l] = rgb2hsl(col);
-        const mod = h / 100;
+        this.freq = b * 220 + 60;
 
-        this.osc0.frequency.value = freq;
-        this.osc1.frequency.value = freq * mod;
-        this.filter.frequency.value = freq * 2;
 
-        this.osc0.start(this.audioCtx.currentTime);
-        this.osc1.start(this.audioCtx.currentTime);
+        // const [h, s, l] = rgb2hsl(col);
+        // const mod = h / 100;
+        this.synthPlayer = synthPlayer;
+    }
 
+    play() {
+        this.synthPlayer.play(this.freq);
         this.isPlaying = true;
     }
 
     stop() {
-        this.osc0.stop(this.audioCtx.currentTime);
-        this.osc1.stop(this.audioCtx.currentTime);
-
+        this.synthPlayer.stop(this.freq);
         this.isPlaying = false;
     }
 
