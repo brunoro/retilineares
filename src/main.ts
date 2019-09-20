@@ -2,13 +2,14 @@
 // import { Scale, Note } from 'tonal'
 // @ts-ignore
 import Oscillators from 'web-audio-oscillators';
+import * as SVG from 'svg.js';
 
-type Pixel = [number, number, number]
-const rgb2hsl = ([r, g, b]: Pixel): Pixel => {
+type HSVColor = [number, number, number]
+const rgb2hsl = (col: SVG.Color): HSVColor => {
     // Make r, g, and b fractions of 1
-    r /= 255;
-    g /= 255;
-    b /= 255;
+    const r = col.r / 255;
+    const g = col.g / 255;
+    const b = col.b / 255;
 
     // Find greatest and smallest channel values
     let cmin = Math.min(r, g , b),
@@ -48,7 +49,7 @@ const rgb2hsl = ([r, g, b]: Pixel): Pixel => {
     s = +(s * 100).toFixed(1);
     l = +(l * 100).toFixed(1);
 
-    return [h, s, l];
+    return [h / 255, s / 255, l / 255];
 };
 
 // osc
@@ -61,8 +62,8 @@ gain.connect(filter);
 filter.connect(audioContext.destination);
 
 // BPM
-const bpmSpan = document.getElementById('bpm-span')
-const bpmSlider = document.getElementById('bpm-slider')
+const bpmSpan = document.getElementById('bpm-span');
+const bpmSlider = document.getElementById('bpm-slider');
 const updateBPM = () => {
     const bpm = parseInt((bpmSlider as HTMLInputElement).value);
     bpmSpan.innerText = bpm.toString();
@@ -71,8 +72,7 @@ bpmSlider.oninput = updateBPM;
 updateBPM();
 
 // freq
-const updateFreq = () => {
-    const freq = 80;
+const updateFreq = (freq: number) => {
     osc.frequency.value = freq;
     filter.frequency.value = freq * 2;
 };
@@ -80,7 +80,7 @@ const updateFreq = () => {
 // start
 const startBtn = document.getElementById('start-btn');
 const oscStart = () => {
-    updateFreq();
+    updateFreq(1);
     osc.start(audioContext.currentTime);
 };
 startBtn.onclick = oscStart;
@@ -97,3 +97,26 @@ const oscStop = () => {
     filter.connect(audioContext.destination);
 };
 stopBtn.onclick = oscStop;
+
+// svg stuff
+const loadSVG = async () => {
+    const uri = '/test.svg';
+    const resp = await fetch(uri);
+    const svgData = await resp.text();
+
+    const container = document.getElementById('container');
+    const h = container.clientHeight;
+    const w = container.clientWidth;
+
+    const draw = SVG('container').svg(svgData);
+    draw.select('rect').click(function() {
+        const fill = this.style('fill');
+        const col = new SVG.Color(fill);
+        const b = col.brightness();
+        const freq = b * 220 + 60;
+        const [h, s, l] = rgb2hsl(col);
+        console.log(freq);
+        updateFreq(freq);
+    });
+};
+loadSVG();
