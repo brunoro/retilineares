@@ -1,67 +1,9 @@
 // @ts-ignore
-// import { Scale, Note } from 'tonal'
-// @ts-ignore
-import Oscillators from 'web-audio-oscillators';
 import * as SVG from 'svg.js';
-
-type HSVColor = [number, number, number]
-const rgb2hsl = (col: SVG.Color): HSVColor => {
-    // Make r, g, and b fractions of 1
-    const r = col.r / 255;
-    const g = col.g / 255;
-    const b = col.b / 255;
-
-    // Find greatest and smallest channel values
-    let cmin = Math.min(r, g , b),
-        cmax = Math.max(r, g, b),
-        delta = cmax - cmin,
-        h = 0,
-        s = 0,
-        l = 0;
-
-    // Calculate hue
-    // No difference
-    if (delta === 0)
-    h = 0;
-    // Red is max
-    else if (cmax === r)
-    h = ((g - b) / delta) % 6;
-    // Green is max
-    else if (cmax === g)
-    h = (b - r) / delta + 2;
-    // Blue is max
-    else
-    h = (r - g) / delta + 4;
-
-    h = Math.round(h * 60);
-
-    // Make negative hues positive behind 360°
-    if (h < 0)
-        h += 360;
-
-    // Calculate lightness
-    l = (cmax + cmin) / 2;
-
-    // Calculate saturation
-    s = delta === 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
-
-    // Multiply l and s by 100
-    s = +(s * 100).toFixed(1);
-    l = +(l * 100).toFixed(1);
-
-    return [h / 255, s / 255, l / 255];
-};
+import Slice from './slice';
 
 // osc
 const audioContext = new AudioContext();
-let osc0 = Oscillators.sine(audioContext);
-let osc1 = Oscillators.sine(audioContext);
-let gain = audioContext.createGain();
-let filter = audioContext.createBiquadFilter();
-osc0.connect(gain);
-osc1.connect(gain);
-gain.connect(filter);
-filter.connect(audioContext.destination);
 
 // BPM
 const bpmSpan = document.getElementById('bpm-span');
@@ -73,39 +15,24 @@ const updateBPM = () => {
 bpmSlider.oninput = updateBPM;
 updateBPM();
 
-// freq
-let mod = 0;
-const updateFreq = (freq: number) => {
-    osc0.frequency.value = freq;
-    osc1.frequency.value = freq * mod;
-    filter.frequency.value = freq * 2;
-};
-
-// start
-const startBtn = document.getElementById('start-btn');
-const oscStart = () => {
-    updateFreq(1);
-    osc0.start(audioContext.currentTime);
-    osc1.start(audioContext.currentTime);
-};
-startBtn.onclick = oscStart;
+const slices = new Map<string, Slice>();
 
 // stop
 const stopBtn = document.getElementById('stop-btn');
 const oscStop = () => {
-    osc0.stop(audioContext.currentTime);
-    osc1.stop(audioContext.currentTime);
-
-    osc0 = Oscillators.sine(audioContext);
-    osc1 = Oscillators.sine(audioContext);
-    gain = audioContext.createGain();
-    filter = audioContext.createBiquadFilter();
-    osc0.connect(gain);
-    osc1.connect(gain);
-    gain.connect(filter);
-    filter.connect(audioContext.destination);
+    slices.forEach((slice) => slice.stop());
 };
 stopBtn.onclick = oscStop;
+
+// click handler
+const onClick = function() {
+    console.log(this);
+    const rect: SVG.Rect = this;
+    const id = this.id();
+    const slice = slices.has(id) ? slices.get(id) : new Slice(rect, audioContext);
+    slices.set(id, slice);
+    slice.toggle();
+};
 
 // svg stuff
 const loadSVG = async () => {
@@ -120,15 +47,6 @@ const loadSVG = async () => {
     */
 
     const draw = SVG('container').svg(svgData);
-    draw.select('rect').click(function() {
-        const fill = this.style('fill');
-        const col = new SVG.Color(fill);
-        const b = col.brightness();
-        const freq = b * 220 + 60;
-        const [h, s, l] = rgb2hsl(col);
-        mod = h / 100;
-        console.log(freq);
-        updateFreq(freq);
-    });
+    draw.select('rect').click(onClick);
 };
 loadSVG();
