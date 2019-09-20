@@ -54,10 +54,12 @@ const rgb2hsl = (col: SVG.Color): HSVColor => {
 
 // osc
 const audioContext = new AudioContext();
-let osc = Oscillators.sine(audioContext);
+let osc0 = Oscillators.sine(audioContext);
+let osc1 = Oscillators.sine(audioContext);
 let gain = audioContext.createGain();
 let filter = audioContext.createBiquadFilter();
-osc.connect(gain);
+osc0.connect(gain);
+osc1.connect(gain);
 gain.connect(filter);
 filter.connect(audioContext.destination);
 
@@ -72,8 +74,10 @@ bpmSlider.oninput = updateBPM;
 updateBPM();
 
 // freq
+let mod = 0;
 const updateFreq = (freq: number) => {
-    osc.frequency.value = freq;
+    osc0.frequency.value = freq;
+    osc1.frequency.value = freq * mod;
     filter.frequency.value = freq * 2;
 };
 
@@ -81,18 +85,23 @@ const updateFreq = (freq: number) => {
 const startBtn = document.getElementById('start-btn');
 const oscStart = () => {
     updateFreq(1);
-    osc.start(audioContext.currentTime);
+    osc0.start(audioContext.currentTime);
+    osc1.start(audioContext.currentTime);
 };
 startBtn.onclick = oscStart;
 
 // stop
 const stopBtn = document.getElementById('stop-btn');
 const oscStop = () => {
-    osc.stop(audioContext.currentTime);
-    osc = Oscillators.sine(audioContext);
+    osc0.stop(audioContext.currentTime);
+    osc1.stop(audioContext.currentTime);
+
+    osc0 = Oscillators.sine(audioContext);
+    osc1 = Oscillators.sine(audioContext);
     gain = audioContext.createGain();
     filter = audioContext.createBiquadFilter();
-    osc.connect(gain);
+    osc0.connect(gain);
+    osc1.connect(gain);
     gain.connect(filter);
     filter.connect(audioContext.destination);
 };
@@ -104,9 +113,11 @@ const loadSVG = async () => {
     const resp = await fetch(uri);
     const svgData = await resp.text();
 
+    /*
     const container = document.getElementById('container');
     const h = container.clientHeight;
     const w = container.clientWidth;
+    */
 
     const draw = SVG('container').svg(svgData);
     draw.select('rect').click(function() {
@@ -115,6 +126,7 @@ const loadSVG = async () => {
         const b = col.brightness();
         const freq = b * 220 + 60;
         const [h, s, l] = rgb2hsl(col);
+        mod = h / 100;
         console.log(freq);
         updateFreq(freq);
     });
