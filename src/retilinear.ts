@@ -11,10 +11,12 @@ class Retilinear {
     synth: BleepSynth;
 
     canvas: SVG.Doc;
-    rect: SVG.Rect;
     color: SVG.Color;
     pos: [number, number];
     size: [number, number];
+
+    rect: SVG.Rect;
+    cursor: SVG.Rect;
 
     constructor(audioCtx: AudioContext, canvas: SVG.Doc, color: SVG.Color, pos: [number, number], size: [number, number]) {
         this.isPlaying = false;
@@ -43,8 +45,8 @@ class Retilinear {
 
         const toggle = () => this.isPlaying ? this.stop() : this.play();
         this.rect.click(function() {
-            console.log(this);
             toggle();
+            return true;
         });
     }
 
@@ -53,12 +55,52 @@ class Retilinear {
     }
 
     play() {
-        console.log(this);
+        this.isPlaying = true;
+
         const [w, h] = this.size;
-        this.synth.play(this.freq, (w + h) * 2 / 200);
+        const [x, y] = this.pos;
+
+        const [cw, ch] = [10, 10];
+        this.cursor = this.canvas.rect(cw, ch).x(x).y(y).attr('fill', 'gray');
+
+        const dec = (l: number) => l / 400;
+        const dur = (l: number) => l * 5;
+        const [dx, dy] = [w - cw, h - ch];
+
+
+        const anims = [
+            // top-left -> top-right
+            (c: SVG.Shape): SVG.Animation => c.animate(dur(dx), '-').move(x + dx, y).after(() => {
+                if (!this.isPlaying) return;
+                this.synth.play(this.freq, dec(dy));
+                return anims[1](c);
+            }),
+            // top-right -> bottom-right
+            (c: SVG.Shape): SVG.Animation => c.animate(dur(dy), '-').move(x + dx, y + dy).after(() => {
+                if (!this.isPlaying) return;
+                this.synth.play(this.freq, dec(dx));
+                return anims[2](c);
+            }),
+            // bottom-right -> bottom-left
+            (c: SVG.Shape): SVG.Animation => c.animate(dur(dx), '-').move(x, y + dy).after(() => {
+                if (!this.isPlaying) return;
+                this.synth.play(this.freq, dec(dy));
+                return anims[3](c);
+            }),
+            // bottom-left -> top-left
+            (c: SVG.Shape): SVG.Animation => c.animate(dur(dy), '-').move(x, y).after(() => {
+                if (!this.isPlaying) return;
+                this.synth.play(this.freq, dec(dx));
+                return anims[0](c);
+            })
+        ];
+
+        this.synth.play(this.freq, dec(dx));
+        anims[0](this.cursor);
     }
 
     stop() {
+        this.cursor.remove();
         this.isPlaying = false;
     }
 }
