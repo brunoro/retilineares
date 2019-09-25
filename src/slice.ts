@@ -7,11 +7,14 @@ class Slice {
     isPlaying: boolean;
     freq: number;
 
+    canvas: SVG.Doc;
     audioCtx: AudioContext;
-    rect: SVG.Rect;
+    rect: SVG.Element;
     synthPlayer: SynthPlayer;
 
-    constructor(rect: SVG.Rect, synthPlayer: SynthPlayer) {
+    cursor: SVG.Element;
+
+    constructor(canvas: SVG.Doc, rect: SVG.Rect, synthPlayer: SynthPlayer) {
         this.isPlaying = false;
 
         this.rect = rect;
@@ -21,20 +24,25 @@ class Slice {
         const b = col.brightness();
         this.freq = b * 220 + 60;
 
-
         // const [h, s, l] = rgb2hsl(col);
         // const mod = h / 100;
         this.synthPlayer = synthPlayer;
+        this.canvas = canvas;
     }
 
     play() {
         this.synthPlayer.play(this.freq);
         this.isPlaying = true;
+
+        this.cursor = SVG(this.rect.id()).rect(10, 10);
+        console.log(this.cursor);
     }
 
     stop() {
         this.synthPlayer.stop(this.freq);
         this.isPlaying = false;
+
+        this.cursor.remove();
     }
 
     toggle() {

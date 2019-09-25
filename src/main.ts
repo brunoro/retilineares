@@ -26,12 +26,14 @@ const oscStop = () => {
 };
 stopBtn.onclick = oscStop;
 
+const canvas = SVG('container');
+
 // click handler
 const onClick = function() {
     console.log(this);
     const rect: SVG.Rect = this;
     const id = this.id();
-    const slice = slices.has(id) ? slices.get(id) : new Slice(rect, synthPlayer);
+    const slice = slices.has(id) ? slices.get(id) : new Slice(canvas, rect, synthPlayer);
     slices.set(id, slice);
     slice.toggle();
 };
@@ -48,7 +50,7 @@ const loadSVG = async () => {
     const w = container.clientWidth;
     */
 
-    const draw = SVG('container').svg(svgData);
-    draw.select('rect').click(onClick);
+    canvas.svg(svgData);
+    canvas.select('rect').click(onClick);
 };
 loadSVG();
