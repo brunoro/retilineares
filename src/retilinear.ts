@@ -15,8 +15,8 @@ class Retilinear {
     pos: [number, number];
     size: [number, number];
 
-    rect: SVG.Rect;
-    cursor: SVG.Rect;
+    poly: SVG.Polygon;
+    cursor: SVG.Shape;
 
     constructor(audioCtx: AudioContext, canvas: SVG.Doc, color: SVG.Color, pos: [number, number], size: [number, number]) {
         this.isPlaying = false;
@@ -41,10 +41,11 @@ class Retilinear {
     draw() {
         const [x, y] = this.pos;
         const [w, h] = this.size;
-        this.rect = this.canvas.rect(w, h).x(x).y(y).attr('fill', this.color.toString());
+        this.poly = this.canvas.polygon([[x, y], [x + w, y], [x + w, y + h], [x, y + h]])
+            .attr('fill', this.color.toString());
 
         const toggle = () => this.isPlaying ? this.stop() : this.play();
-        this.rect.click(function() {
+        this.poly.click(function() {
             toggle();
             return true;
         });
@@ -67,6 +68,7 @@ class Retilinear {
         const dur = (l: number) => l * 5;
         const [dx, dy] = [w - cw, h - ch];
 
+        console.log(this.poly.array());
 
         const anims = [
             // top-left -> top-right
