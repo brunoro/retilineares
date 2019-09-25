@@ -49,4 +49,6 @@ const rgb2hsl = (col: SVG.Color): HSVColor => {
     return [h / 255, s / 255, l / 255];
 };
 
-export { rgb2hsl };
+const mod = (m: number, n: number) => ((m % n) + n) % n;
+
+export { rgb2hsl, mod };

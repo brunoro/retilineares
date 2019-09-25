@@ -1,6 +1,6 @@
 // @ts-ignore
 import * as SVG from 'svg.js';
-// import { rgb2hsl } from './util';
+import { mod } from './util';
 import { BleepSynth } from './synth';
 
 class Retilinear {
@@ -28,7 +28,6 @@ class Retilinear {
         // const mod = h / 100;
         this.audioCtx = audioCtx;
         this.synth = new BleepSynth(this.freq, this.audioCtx);
-
         this.canvas = canvas;
         this.color = color;
         this.pos = pos;
@@ -41,7 +40,7 @@ class Retilinear {
     draw() {
         const [x, y] = this.pos;
         const [w, h] = this.size;
-        this.poly = this.canvas.polygon([[x, y], [x + w, y], [x + w, y + h], [x, y + h]])
+        this.poly = this.canvas.polygon([[x, y], [x + w, y], [x + w, y + h], [x, y + h])
             .attr('fill', this.color.toString());
 
         const toggle = () => this.isPlaying ? this.stop() : this.play();
@@ -58,47 +57,36 @@ class Retilinear {
     play() {
         this.isPlaying = true;
 
-        const [w, h] = this.size;
         const [x, y] = this.pos;
 
         const [cw, ch] = [10, 10];
-        this.cursor = this.canvas.rect(cw, ch).x(x).y(y).attr('fill', 'gray');
+        const [kx, ky] = [-cw / 2, -ch / 2];
+        this.cursor = this.canvas.rect(cw, ch)
+            .x(x + kx).y(y + ky)
+            .attr('fill', 'gray');
 
         const dec = (l: number) => l / 400;
         const dur = (l: number) => l * 5;
-        const [dx, dy] = [w - cw, h - ch];
 
-        console.log(this.poly.array());
+        const points = this.poly.array();
+        const animate = (step: number) => {
+            const len = points.value.length;
+            const p = mod(step - 1, len);
+            // @ts-ignore
+            const [px, py] = points.value[p];
 
-        const anims = [
-            // top-left -> top-right
-            (c: SVG.Shape): SVG.Animation => c.animate(dur(dx), '-').move(x + dx, y).after(() => {
-                if (!this.isPlaying) return;
-                this.synth.play(this.freq, dec(dy));
-                return anims[1](c);
-            }),
-            // top-right -> bottom-right
-            (c: SVG.Shape): SVG.Animation => c.animate(dur(dy), '-').move(x + dx, y + dy).after(() => {
-                if (!this.isPlaying) return;
-                this.synth.play(this.freq, dec(dx));
-                return anims[2](c);
-            }),
-            // bottom-right -> bottom-left
-            (c: SVG.Shape): SVG.Animation => c.animate(dur(dx), '-').move(x, y + dy).after(() => {
-                if (!this.isPlaying) return;
-                this.synth.play(this.freq, dec(dy));
-                return anims[3](c);
-            }),
-            // bottom-left -> top-left
-            (c: SVG.Shape): SVG.Animation => c.animate(dur(dy), '-').move(x, y).after(() => {
-                if (!this.isPlaying) return;
-                this.synth.play(this.freq, dec(dx));
-                return anims[0](c);
-            })
-        ];
+            const n = mod(step, len);
+            // @ts-ignore
+            const [nx, ny] = points.value[n];
 
-        this.synth.play(this.freq, dec(dx));
-        anims[0](this.cursor);
+            const [dx, dy] = [Math.abs(nx - px), Math.abs(ny - py)];
+            this.synth.play(this.freq, dec(dx + dy));
+            this.cursor.animate(dur(dx + dy), '-').move(nx + kx, ny + ky).after(() => {
+                if (!this.isPlaying) return;
+                animate(step + 1);
+            });
+        };
+        animate(1);
     }
 
     stop() {
