@@ -12,13 +12,12 @@ class Retilinear {
 
     canvas: SVG.Doc;
     color: SVG.Color;
-    pos: [number, number];
-    size: [number, number];
 
+    points: Array<[number, number]>;
     poly: SVG.Polygon;
     cursor: SVG.Shape;
 
-    constructor(audioCtx: AudioContext, canvas: SVG.Doc, color: SVG.Color, pos: [number, number], size: [number, number]) {
+    constructor(audioCtx: AudioContext, canvas: SVG.Doc, color: SVG.Color, points: Array<[number, number]>) {
         this.isPlaying = false;
 
         const b = color.brightness();
@@ -30,18 +29,14 @@ class Retilinear {
         this.synth = new BleepSynth(this.freq, this.audioCtx);
         this.canvas = canvas;
         this.color = color;
-        this.pos = pos;
-        this.size = size;
+        this.points = points;
 
         this.draw();
     }
 
 
     draw() {
-        const [x, y] = this.pos;
-        const [w, h] = this.size;
-        this.poly = this.canvas.polygon([[x, y], [x + w, y], [x + w, y + h], [x, y + h])
-            .attr('fill', this.color.toString());
+        this.poly = this.canvas.polygon(this.points).attr('fill', this.color.toString());
 
         const toggle = () => this.isPlaying ? this.stop() : this.play();
         this.poly.click(function() {
@@ -57,7 +52,7 @@ class Retilinear {
     play() {
         this.isPlaying = true;
 
-        const [x, y] = this.pos;
+        const [x, y] = this.points[0];
 
         const [cw, ch] = [10, 10];
         const [kx, ky] = [-cw / 2, -ch / 2];
@@ -68,16 +63,16 @@ class Retilinear {
         const dec = (l: number) => l / 400;
         const dur = (l: number) => l * 6;
 
-        const points = this.poly.array();
+        // const points = this.poly.array();
         const animate = (step: number) => {
-            const len = points.value.length;
+            const len = this.points.length;
             const p = mod(step - 1, len);
             // @ts-ignore
-            const [px, py] = points.value[p];
+            const [px, py] = this.points[p];
 
             const n = mod(step, len);
             // @ts-ignore
-            const [nx, ny] = points.value[n];
+            const [nx, ny] = this.points[n];
 
             const [dx, dy] = [Math.abs(nx - px), Math.abs(ny - py)];
             this.synth.play(this.freq, dec(dx + dy));

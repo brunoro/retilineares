@@ -27,7 +27,12 @@ stopBtn.onclick = oscStop;
 const canvas = SVG('container').size(800, 600).viewbox(0, 0, 1024, 768);
 
 const rect = (id: string, color: SVG.Color, pos: [number, number], size: [number, number]) => {
-    const ret = retilineares.has(id) ? retilineares.get(id) : new Retilinear(audioContext, canvas, color, pos, size);
+    const points = [pos, 
+        [pos[0] + size[0], pos[1]],
+        [pos[0] + size[0], pos[1] + size[1]],
+        [pos[0], pos[1] + size[1]]
+    ];
+    const ret = retilineares.has(id) ? retilineares.get(id) : new Retilinear(audioContext, canvas, color, points);
     retilineares.set(id, ret);
 };
 
