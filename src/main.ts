@@ -27,7 +27,7 @@ stopBtn.onclick = oscStop;
 const canvas = SVG('container').size(800, 600).viewbox(0, 0, 1024, 768);
 
 const rect = (id: string, color: SVG.Color, pos: [number, number], size: [number, number]) => {
-    const points = [pos, 
+    const points: Array<[number, number]> = [pos,
         [pos[0] + size[0], pos[1]],
         [pos[0] + size[0], pos[1] + size[1]],
         [pos[0], pos[1] + size[1]]
@@ -37,6 +37,7 @@ const rect = (id: string, color: SVG.Color, pos: [number, number], size: [number
 };
 
 // click handler
+/*
 canvas.click(function(ev: MouseEvent) {
     if (audioContext == null) {
         audioContext = new AudioContext();
@@ -48,6 +49,7 @@ canvas.click(function(ev: MouseEvent) {
     const color = new SVG.Color('#eeaa00');
     rect(id, color, pos, size);
 });
+*/
 
 // svg stuff
 const loadSVG = async () => {
@@ -55,11 +57,22 @@ const loadSVG = async () => {
     const resp = await fetch(uri);
     const svgData = await resp.text();
 
-    /*
-    const container = document.getElementById('container');
-    const h = container.clientHeight;
-    const w = container.clientWidth;
-    */
+    const draw = SVG('container').size(800, 600).viewbox(0, 0, 1024, 768);
+    draw.svg(svgData);
 
-    canvas.svg(svgData);
+    draw.select('rect').each(function(i: number, members: SVG.Element[]) {
+        const r: SVG.Rect = this;
+        const s = 3;
+        rect(r.id(), new SVG.Color(r.style('fill')), [r.x() * s, r.y() * s], [r.width() * s, r.height() * s]);
+    });
+
+    draw.remove();
 };
+
+
+canvas.click(function(ev: MouseEvent) {
+    if (audioContext == null) {
+        audioContext = new AudioContext();
+    }
+    loadSVG();
+});
