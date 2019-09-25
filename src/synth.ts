@@ -21,24 +21,19 @@ class BleepSynth {
         adsr.connect(filter);
         filter.connect(this.audioCtx.destination);
 
+        // adsr
         const t0 = this.audioCtx.currentTime;
         osc.start(t0);
-        const t1 = t0 + dec;
-        adsr.gain.setValueAtTime(0, t1);
-
-        // // adsr
-        // const t0 = this.audioCtx.currentTime;
-        // osc.start(t0);
-        // // vol:0
-        // adsr.gain.setValueAtTime(0, t0);
-        // // attack
-        // const t1 = t0 + 0.01;
-        // adsr.gain.linearRampToValueAtTime(1, t1);
-        // // decay
-        // const t2 = t0 + dec;
-        // const sus = 0.8;
-        // adsr.gain.setTargetAtTime(sus, t1, t2);
-        // // gate
+        // vol:0
+        adsr.gain.setValueAtTime(0, t0);
+        // attack
+        const t1 = t0 + 0.01;
+        adsr.gain.linearRampToValueAtTime(1, t1);
+        // decay
+        const t2 = t1 + dec;
+        const sus = 0.01;
+        adsr.gain.exponentialRampToValueAtTime(sus, t2);
+        // gate
         const stop = setInterval(() => {
             if (adsr.gain.value < 0.01) {
                 osc.stop();

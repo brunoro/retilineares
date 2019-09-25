@@ -40,6 +40,7 @@ class Retilinear {
         const [x, y] = this.pos;
         const [w, h] = this.size;
         this.rect = this.canvas.rect(w, h).x(x).y(y).attr('fill', this.color.toString());
+
         const toggle = () => this.isPlaying ? this.stop() : this.play();
         this.rect.click(function() {
             console.log(this);

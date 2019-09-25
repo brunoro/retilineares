@@ -38,10 +38,9 @@ canvas.click(function(ev: MouseEvent) {
     }
     const id = this.id();
 
-    console.log(ev);
     const pos: [number, number] = [ev.clientX, ev.clientY];
     const size: [number, number] = [200, 200];
-    const color = new SVG.Color('eeaa00ff');
+    const color = new SVG.Color('#eeaa00');
     rect(id, color, pos, size);
 });
 
