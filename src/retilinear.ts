@@ -66,7 +66,7 @@ class Retilinear {
             .attr('fill', 'gray');
 
         const dec = (l: number) => l / 400;
-        const dur = (l: number) => l * 5;
+        const dur = (l: number) => l * 6;
 
         const points = this.poly.array();
         const animate = (step: number) => {
