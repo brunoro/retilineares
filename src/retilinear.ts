@@ -54,11 +54,11 @@ class Retilinear {
 
         const [x, y] = this.points[0];
 
-        const [cw, ch] = [10, 10];
+        const [cw, ch] = [20, 20];
         const [kx, ky] = [-cw / 2, -ch / 2];
-        this.cursor = this.canvas.rect(cw, ch)
+        this.cursor = this.canvas.ellipse(cw, ch)
             .x(x + kx).y(y + ky)
-            .attr('fill', 'gray');
+            .attr('fill', this.color.toString());
 
         const dec = (l: number) => l / 400;
         const dur = (l: number) => l * 6;

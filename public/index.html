@@ -10,56 +10,10 @@
             height: 100%;
             width: auto;
         }
-        #controls {
-            position: absolute;
-            top: 30%;
-            left: 60%;
-            z-index: 2;
-            background-color: white;
-            border-color: #454545;
-            border-style: solid;
-            border-width: 2px;
-            color:#333;
-            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 5px;
-            min-width: 172px;
-        }
-        #colors {
-            display: flex;
-        }
-        .control-title {
-            font-weight: regular;
-        }
-        .control-val {
-            font-weight: bold;
-            font-size: 20pt;
-            line-height: 10pt;
-        }
-        .slider {
-            -webkit-appearance: none; 
-            appearance: none;
-            width: 168px; 
-            height: 15px; 
-            outline: none; 
-            opacity: 0.7; 
-            -webkit-transition: .2s; 
-            transition: opacity .2s;
-        }
-        .slider:hover {
-            opacity: 1; 
-        }
     </style>
 </head>
 <body>
     <div id="container"></div>
-    <div id="controls">
-        <p class="control-title">bpm</p>
-        <p class="control-val"><span id="bpm-span">120</span></p>
-        <p><input type="range" min="60" max="200" value="120" class="freq-slider" id="bpm-slider"></p>
-
-        <button id="stop-btn">stop</button>
-    </div>
-
     <script src="bundle.js"></script>
 </body>
 </html>
