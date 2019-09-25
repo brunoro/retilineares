@@ -1,10 +1,9 @@
 // @ts-ignore
 import * as SVG from 'svg.js';
-import Slice from './slice';
-import { SynthPlayer } from './osc';
+import Retilinear from './retilinear';
 
 // osc
-const audioContext = new AudioContext();
+let audioContext: AudioContext;
 
 // BPM
 const bpmSpan = document.getElementById('bpm-span');
@@ -16,27 +15,35 @@ const updateBPM = () => {
 bpmSlider.oninput = updateBPM;
 updateBPM();
 
-const slices = new Map<string, Slice>();
-const synthPlayer = new SynthPlayer(audioContext);
+const retilineares = new Map<string, Retilinear>();
 
 // stop
 const stopBtn = document.getElementById('stop-btn');
 const oscStop = () => {
-    slices.forEach((slice) => slice.stop());
+    retilineares.forEach((slice) => slice.stop());
 };
 stopBtn.onclick = oscStop;
 
-const canvas = SVG('container');
+const canvas = SVG('container').size(800, 600).viewbox(0, 0, 800, 600);
+
+const rect = (id: string, color: SVG.Color, pos: [number, number], size: [number, number]) => {
+    const ret = retilineares.has(id) ? retilineares.get(id) : new Retilinear(audioContext, canvas, color, pos, size);
+    retilineares.set(id, ret);
+};
 
 // click handler
-const onClick = function() {
-    console.log(this);
-    const rect: SVG.Rect = this;
+canvas.click(function(ev: MouseEvent) {
+    if (audioContext == null) {
+        audioContext = new AudioContext();
+    }
     const id = this.id();
-    const slice = slices.has(id) ? slices.get(id) : new Slice(canvas, rect, synthPlayer);
-    slices.set(id, slice);
-    slice.toggle();
-};
+
+    console.log(ev);
+    const pos: [number, number] = [ev.clientX, ev.clientY];
+    const size: [number, number] = [200, 200];
+    const color = new SVG.Color('eeaa00ff');
+    rect(id, color, pos, size);
+});
 
 // svg stuff
 const loadSVG = async () => {
@@ -51,6 +58,4 @@ const loadSVG = async () => {
     */
 
     canvas.svg(svgData);
-    canvas.select('rect').click(onClick);
 };
-loadSVG();
