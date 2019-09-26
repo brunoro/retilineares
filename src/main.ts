@@ -44,6 +44,7 @@ const loadSVG = async () => {
     draw.select('rect').each(function(i: number, members: SVG.Element[]) {
         const r: SVG.Rect = this;
         const s = 4;
+// @ts-ignore
         rect(r.id(), new SVG.Color(r.style('fill')), [r.x() * s, r.y() * s], [r.width() * s, r.height() * s]);
     });
 

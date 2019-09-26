@@ -21,7 +21,8 @@ class Retilinear {
         this.isPlaying = false;
 
         const b = color.brightness();
-        this.freq = b * 220 + 60;
+        this.freq = b * 1280 + 160;
+        // this.freq = b * 220 + 60;
 
         // const [h, s, l] = rgb2hsl(col);
         // const mod = h / 100;
