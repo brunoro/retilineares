@@ -47,7 +47,6 @@ const path = (p: SVG.Path, s: number) => {
             prev = curr;
             curr = [x * s, y * s];
             if (points[points.length - 1] !== prev) {
-                console.log(points[points.length - 1], prev);
                 points.push(prev);
             }
             points.push(curr);
@@ -58,7 +57,6 @@ const path = (p: SVG.Path, s: number) => {
             prev = curr;
             curr = [x * s, y * s];
             if (points[points.length - 1] !== prev) {
-                console.log(points[points.length - 1], prev);
                 points.push(prev);
             }
             points.push(curr);
@@ -97,7 +95,7 @@ const loadSVG = async () => {
         path(this, 4);
     });
     draw.select('rect').each(function(i: number, members: SVG.Element[]) {
-        // rect(this, 4);
+        rect(this, 4);
     });
 
     draw.remove();
