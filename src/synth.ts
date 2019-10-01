@@ -3,6 +3,7 @@ import Oscillators from 'web-audio-oscillators';
 
 class BleepSynth {
     audioCtx: AudioContext;
+    filter: BiquadFilterNode;
     freq: number;
 
     constructor(freq: number, audioCtx: AudioContext) {
@@ -13,7 +14,8 @@ class BleepSynth {
     play(freq: number, dec: number) {
         console.log('play!', freq, dec);
 
-        const osc = Oscillators.sine(this.audioCtx);
+        // const osc = Oscillators.sine(this.audioCtx);
+        const osc = Oscillators.sawtooth(this.audioCtx);
         const adsr = this.audioCtx.createGain();
         const filter = this.audioCtx.createBiquadFilter();
 
@@ -43,6 +45,13 @@ class BleepSynth {
 
         osc.frequency.value = freq;
         filter.frequency.value = freq * 2;
+        this.filter = filter;
+        this.freq = freq;
+    }
+
+    setFilterProps(mul: number, q: number) {
+        this.filter.Q.value = q;
+        this.filter.frequency.value = this.freq * mul;
     }
 }
 

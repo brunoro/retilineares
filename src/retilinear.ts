@@ -83,9 +83,13 @@ class Retilinear {
 
             const [dx, dy] = [Math.abs(nx - px), Math.abs(ny - py)];
             this.synth.play(this.note * oct(dx + dy), dec(dx + dy));
+            const synth = this.synth;
             this.cursor.animate(dur(dx + dy), '-').move(nx + kx, ny + ky).after(() => {
                 if (!this.isPlaying) return;
                 animate(step + 1);
+            // @ts-ignore
+            }).during(function(pos, morph, eased, situation) {
+                synth.setFilterProps(1 + pos, 0.9);
             });
         };
         animate(1);
