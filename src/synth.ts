@@ -11,7 +11,7 @@ class BleepSynth {
     }
 
     play(freq: number, dec: number) {
-        // console.log('play!', freq, dec);
+        console.log('play!', freq, dec);
 
         const osc = Oscillators.sine(this.audioCtx);
         const adsr = this.audioCtx.createGain();

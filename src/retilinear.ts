@@ -5,7 +5,7 @@ import { BleepSynth } from './synth';
 
 class Retilinear {
     isPlaying: boolean;
-    freq: number;
+    note: number;
 
     audioCtx: AudioContext;
     synth: BleepSynth;
@@ -21,13 +21,15 @@ class Retilinear {
         this.isPlaying = false;
 
         const b = color.brightness();
-        this.freq = b * 440 + 160;
-        // this.freq = b * 220 + 60;
+
+        // const pitchBase = 440;
+        const pitchBase = 300;
+        this.note = b * pitchBase + 60;
 
         // const [h, s, l] = rgb2hsl(col);
         // const mod = h / 100;
         this.audioCtx = audioCtx;
-        this.synth = new BleepSynth(this.freq, this.audioCtx);
+        this.synth = new BleepSynth(this.note, this.audioCtx);
         this.canvas = canvas;
         this.color = color;
         this.points = points;
@@ -63,6 +65,10 @@ class Retilinear {
 
         const dec = (l: number) => l / 400;
         const dur = (l: number) => l * 6;
+        const oct = (l: number) => {
+            const mul = 2 - Math.ceil(l / 500);
+            return Math.pow(2, mul);
+        };
 
         // const points = this.poly.array();
         const animate = (step: number) => {
@@ -76,7 +82,7 @@ class Retilinear {
             const [nx, ny] = this.points[n];
 
             const [dx, dy] = [Math.abs(nx - px), Math.abs(ny - py)];
-            this.synth.play(this.freq, dec(dx + dy));
+            this.synth.play(this.note * oct(dx + dy), dec(dx + dy));
             this.cursor.animate(dur(dx + dy), '-').move(nx + kx, ny + ky).after(() => {
                 if (!this.isPlaying) return;
                 animate(step + 1);
