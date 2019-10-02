@@ -1,6 +1,7 @@
 // @ts-ignore
 import * as SVG from 'svg.js';
 import Retilinear from './retilinear';
+import { randomBytes } from 'crypto';
 
 let audioContext: AudioContext;
 let canvas = SVG('container').size('100%', '100%').viewbox(0, 0, 1920, 768);
@@ -91,20 +92,37 @@ const loadSVG = async () => {
 
     draw.svg(svgData);
 
+    const scale = 4;
+
     draw.select('path').each(function(i: number, members: SVG.Element[]) {
-        path(this, 4);
+        path(this, scale);
     });
     draw.select('rect').each(function(i: number, members: SVG.Element[]) {
-        rect(this, 4);
+        rect(this, scale);
     });
 
     draw.remove();
 };
 
+const playRand = (ev: MouseEvent) => {
+    retilineares.forEach((ret) => {
+        if (Math.random() < 0.2) {
+            ret.play();
+        }
+    });
+    return true;
+};
+
+const stopAll = (ev: MouseEvent) => {
+    retilineares.forEach((ret) => ret.stop());
+    return true;
+};
 
 canvas.click(function(ev: MouseEvent) {
     if (audioContext == null) {
         audioContext = new AudioContext();
     }
     loadSVG();
+    document.getElementById('rand').onclick = playRand;
+    document.getElementById('stop').onclick = stopAll;
 });

@@ -22,8 +22,8 @@ class Retilinear {
 
         const b = color.brightness();
 
-        // const pitchBase = 440;
-        const pitchBase = 300;
+        const pitchBase = 440;
+        // const pitchBase = 500;
         this.note = b * pitchBase + 60;
 
         // const [h, s, l] = rgb2hsl(col);
@@ -63,10 +63,10 @@ class Retilinear {
             .x(x + kx).y(y + ky)
             .attr('fill', this.color.toString());
 
-        const dec = (l: number) => l / 400;
+        const dec = (l: number) => l / 700;
         const dur = (l: number) => l * 6;
         const oct = (l: number) => {
-            const mul = 2 - Math.ceil(l / 500);
+            const mul = 1 - Math.ceil(l / 800);
             return Math.pow(2, mul);
         };
 
@@ -87,16 +87,15 @@ class Retilinear {
             this.cursor.animate(dur(dx + dy), '-').move(nx + kx, ny + ky).after(() => {
                 if (!this.isPlaying) return;
                 animate(step + 1);
-            // @ts-ignore
-            }).during(function(pos, morph, eased, situation) {
-                synth.setFilterProps(1 + pos, 0.9);
             });
         };
         animate(1);
     }
 
     stop() {
-        this.cursor.remove();
+        if (this.cursor) {
+            this.cursor.remove();
+        }
         this.isPlaying = false;
     }
 }

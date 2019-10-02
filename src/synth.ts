@@ -12,7 +12,7 @@ class BleepSynth {
     }
 
     play(freq: number, dec: number) {
-        console.log('play!', freq, dec);
+        // console.log('play!', freq, dec);
 
         // const osc = Oscillators.sine(this.audioCtx);
         const osc = Oscillators.sawtooth(this.audioCtx);
