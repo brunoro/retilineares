@@ -48,31 +48,30 @@ class Retilinear {
         });
     }
 
-    undraw() {
-
-    }
-
     play() {
         this.isPlaying = true;
+        console.log(this.points);
 
         const [x, y] = this.points[0];
 
-        const [cw, ch] = [20, 20];
+        const [cw, ch] = [5, 5];
         const [kx, ky] = [-cw / 2, -ch / 2];
         this.cursor = this.canvas.ellipse(cw, ch)
             .x(x + kx).y(y + ky)
             .attr('fill', this.color.toString());
 
-        const dec = (l: number) => l / 700;
+        const dec = (l: number) => Math.abs(l) / 200;
         // const dur = (l: number) => l * 6;
-        const dur = (l: number) => l * 6;
+        const dur = (l: number) => Math.abs(l) * 18;
         const oct = (l: number) => {
-            const mul = 1 - Math.ceil(l / 500);
+            const mul = 1 - Math.ceil(Math.abs(l) / 500);
             return Math.pow(2, mul);
         };
 
         // const points = this.poly.array();
         const animate = (step: number) => {
+            this.cursor.front();
+
             const len = this.points.length;
             const p = mod(step - 1, len);
             // @ts-ignore
@@ -81,24 +80,25 @@ class Retilinear {
             const n = mod(step, len);
             // @ts-ignore
             const [nx, ny] = this.points[n];
-            const [dx, dy] = [Math.abs(nx - px), Math.abs(ny - py)];
+            const [dx, dy] = [nx - px, ny - py];
 
             this.synth.play(this.note * oct(dx + dy), dec(dx + dy));
 
             const flashColor = '#fff';
-            this.cursor.attr('fill', flashColor);
+            const shapeColor = this.color.toString();
+
             this.poly.attr('fill', flashColor);
             const polyFlash = this.poly.animate(dur(dx + dy), '>')
-                .attr({ fill: this.color.toString() });
+                .attr({ fill: shapeColor });
 
-            console.log(this.poly.attr('fill'));
-
+            this.cursor.attr('fill', flashColor);
             this.cursor.animate(dur(dx + dy), '>')
                 .move(nx + kx, ny + ky)
-                .attr({ fill: this.color.toString() })
+                .attr({ fill: shapeColor })
                 .after(() => {
-                    if (!this.isPlaying) return;
                     polyFlash.stop();
+                    if (!this.isPlaying) return;
+
                     animate(step + 1);
                 });
         };
