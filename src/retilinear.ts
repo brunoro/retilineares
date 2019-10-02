@@ -22,8 +22,8 @@ class Retilinear {
 
         const b = color.brightness();
 
-        const pitchBase = 440;
-        // const pitchBase = 500;
+        // const pitchBase = 440;
+        const pitchBase = 300;
         this.note = b * pitchBase + 60;
 
         // const [h, s, l] = rgb2hsl(col);
@@ -66,7 +66,7 @@ class Retilinear {
         const dec = (l: number) => l / 700;
         const dur = (l: number) => l * 6;
         const oct = (l: number) => {
-            const mul = 1 - Math.ceil(l / 800);
+            const mul = 1 - Math.ceil(l / 500);
             return Math.pow(2, mul);
         };
 
