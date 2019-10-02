@@ -64,6 +64,7 @@ class Retilinear {
             .attr('fill', this.color.toString());
 
         const dec = (l: number) => l / 700;
+        // const dur = (l: number) => l * 6;
         const dur = (l: number) => l * 6;
         const oct = (l: number) => {
             const mul = 1 - Math.ceil(l / 500);
@@ -80,14 +81,26 @@ class Retilinear {
             const n = mod(step, len);
             // @ts-ignore
             const [nx, ny] = this.points[n];
-
             const [dx, dy] = [Math.abs(nx - px), Math.abs(ny - py)];
+
             this.synth.play(this.note * oct(dx + dy), dec(dx + dy));
-            const synth = this.synth;
-            this.cursor.animate(dur(dx + dy), '-').move(nx + kx, ny + ky).after(() => {
-                if (!this.isPlaying) return;
-                animate(step + 1);
-            });
+
+            const flashColor = '#fff';
+            this.cursor.attr('fill', flashColor);
+            this.poly.attr('fill', flashColor);
+            const polyFlash = this.poly.animate(dur(dx + dy), '>')
+                .attr({ fill: this.color.toString() });
+
+            console.log(this.poly.attr('fill'));
+
+            this.cursor.animate(dur(dx + dy), '>')
+                .move(nx + kx, ny + ky)
+                .attr({ fill: this.color.toString() })
+                .after(() => {
+                    if (!this.isPlaying) return;
+                    polyFlash.stop();
+                    animate(step + 1);
+                });
         };
         animate(1);
     }
