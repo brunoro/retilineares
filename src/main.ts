@@ -71,6 +71,10 @@ const minPoint = ([ax, ay]: Point, [bx, by]: Point): Point => {
     return [Math.min(ax, bx), Math.min(ay, by)];
 };
 
+const dist = ([ax, ay]: Point, [bx, by]: Point): number => {
+    return Math.sqrt(Math.pow(ax - bx, 2) + Math.pow(ay + by, 2));
+};
+
 const parseRect = (r: SVG.Rect): [string, Array<Point>, SVG.Color] => {
     const id = r.id();
     // @ts-ignore
@@ -109,7 +113,7 @@ const parsePath = (p: SVG.Path): [string, Array<Point>, SVG.Color] => {
             const [_, x, y]: [string, number, number] = op;
             prev = curr;
             curr = [x, y];
-            if (points[points.length - 1] !== prev) {
+            if (dist(curr, prev) > 1) {
                 points.push(prev);
             }
             points.push(curr);
@@ -119,7 +123,7 @@ const parsePath = (p: SVG.Path): [string, Array<Point>, SVG.Color] => {
             const [o, ax, ay, bx, by, x, y]: [string, number, number, number, number, number, number] = op;
             prev = curr;
             curr = [x, y];
-            if (points[points.length - 1] !== prev) {
+            if (dist(curr, prev) > 1) {
                 points.push(prev);
             }
             points.push(curr);

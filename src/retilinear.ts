@@ -62,8 +62,8 @@ class Retilinear {
         // const dur = (l: number) => l * 6;
         const dur = (l: number) => Math.abs(l) * 18;
         const oct = (l: number) => {
-            const mul = Math.abs(l) < 30 ? 2 : 1 - Math.floor(Math.abs(l) / 100);
-            console.log(l, mul);
+            const mul = Math.abs(l) < 20 ? 2 : 1 - Math.floor(Math.abs(l) / 100);
+            console.log(l);
             return Math.pow(2, mul);
         };
 
@@ -80,6 +80,12 @@ class Retilinear {
             // @ts-ignore
             const [nx, ny] = this.points[n];
             const [dx, dy] = [nx - px, ny - py];
+
+            // skip zero steps
+            if (dx + dy === 0) {
+                animate(step + 1);
+                return;
+            }
 
             this.synth.play(this.note * oct(dx + dy), dec(dx + dy));
 
@@ -102,7 +108,6 @@ class Retilinear {
                 });
         };
         animate(1);
-        return true;
     }
 
     stop() {
