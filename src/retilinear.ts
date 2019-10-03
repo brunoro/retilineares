@@ -41,16 +41,13 @@ class Retilinear {
     draw() {
         this.poly = this.canvas.polygon(this.points).attr('fill', this.color.toString());
 
-        const toggle = () => this.isPlaying ? this.stop() : this.play();
-        this.poly.click(function() {
-            toggle();
-            return true;
-        });
+        const self = this;
+        const toggle = () => self.isPlaying ? self.stop() : self.play();
+        this.poly.click(toggle);
     }
 
     play() {
         this.isPlaying = true;
-        console.log(this.points);
 
         const [x, y] = this.points[0];
 
@@ -59,6 +56,7 @@ class Retilinear {
         this.cursor = this.canvas.ellipse(cw, ch)
             .x(x + kx).y(y + ky)
             .attr('fill', this.color.toString());
+        this.cursor.front();
 
         const dec = (l: number) => Math.abs(l) / 200;
         // const dur = (l: number) => l * 6;
@@ -103,6 +101,7 @@ class Retilinear {
                 });
         };
         animate(1);
+        return true;
     }
 
     stop() {
@@ -110,6 +109,7 @@ class Retilinear {
             this.cursor.remove();
         }
         this.isPlaying = false;
+        return true;
     }
 }
 

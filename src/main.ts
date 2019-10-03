@@ -147,19 +147,19 @@ const loadSVG = async () => {
         const rOff = rectMin(this);
         offset = minPoint(offset, rOff);
     });
-    offset = [offset[0] - 5, offset[1] - 1];
+    offset = [offset[0] - 5, offset[1] - 5];
 
     draw.select('path').each(function(i: number, members: SVG.Element[]) {
         const path: SVG.Path = this;
         const [id, points, color] = parsePath(path);
-        const absPoints: Point[] = points.map(([px, py]) => [px - offset[0], py - offset[1]]);
+        const absPoints: Point[] = points.map(([px, py]): Point => [px - offset[0], py - offset[1]]);
         const ret = new Retilinear(audioContext, canvas, color, absPoints);
         retilineares.set(id, ret);
     });
     draw.select('rect').each(function(i: number, members: SVG.Element[]) {
         const rect: SVG.Rect = this;
         const [id, points, color] = parseRect(rect);
-        const absPoints: Point[] = points.map(([px, py]) => [px - offset[0], py - offset[1]]);
+        const absPoints: Point[] = points.map(([px, py]): Point => [px - offset[0], py - offset[1]]);
         const ret = new Retilinear(audioContext, canvas, color, absPoints);
         retilineares.set(id, ret);
     });
@@ -184,8 +184,8 @@ const stopAll = (ev: MouseEvent) => {
 canvas.click(function(ev: MouseEvent) {
     if (audioContext == null) {
         audioContext = new AudioContext();
+        loadSVG();
+        document.getElementById('rand').onclick = playRand;
+        document.getElementById('stop').onclick = stopAll;
     }
-    loadSVG();
-    document.getElementById('rand').onclick = playRand;
-    document.getElementById('stop').onclick = stopAll;
 });
