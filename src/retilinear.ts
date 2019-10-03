@@ -62,8 +62,18 @@ class Retilinear {
         // const dur = (l: number) => l * 6;
         const dur = (l: number) => Math.abs(l) * 18;
         const oct = (l: number) => {
-            const mul = Math.abs(l) < 20 ? 2 : 1 - Math.floor(Math.abs(l) / 100);
-            console.log(l);
+            const al = Math.abs(l);
+            let mul = -2;
+            if (al < 25) {
+                mul = 2;
+            } else if (al < 80) {
+                mul = 1;
+            } else if (al < 160) {
+                mul = 0;
+            } else if (al < 250) {
+                mul = -1;
+            }
+            console.log(mul, l);
             return Math.pow(2, mul);
         };
 
