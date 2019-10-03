@@ -181,13 +181,20 @@ const stopAll = (ev: MouseEvent) => {
     return true;
 };
 
+let loaded = false;
 const init = () => {
-    if (audioContext == null) {
-        audioContext = new AudioContext();
+    if (!loaded) {
+        loaded = true;
+        if ('webkitAudioContext' in window) {
+            // @ts-ignore
+            audioContext = new webkitAudioContext();
+        } else {
+            audioContext = new AudioContext();
+        }
         loadSVG();
         document.getElementById('rand').onclick = playRand;
         document.getElementById('stop').onclick = stopAll;
     }
-}
+};
+
 canvas.click(init);
-canvas.touchleave(init);

@@ -42,12 +42,8 @@ class Retilinear {
         this.poly = this.canvas.polygon(this.points).attr('fill', this.color.toString());
 
         const self = this;
-        const toggle = () => {
-            console.log('isplaying?', self.isPlaying);
-            self.isPlaying ? self.stop() : self.play();
-        };
+        const toggle = () => self.isPlaying ? self.stop() : self.play();
         this.poly.click(toggle);
-        this.poly.touchleave(toggle);
     }
 
     play() {
@@ -66,7 +62,8 @@ class Retilinear {
         // const dur = (l: number) => l * 6;
         const dur = (l: number) => Math.abs(l) * 18;
         const oct = (l: number) => {
-            const mul = 1 - Math.floor(Math.abs(l) / 100);
+            const mul = Math.abs(l) < 30 ? 2 : 1 - Math.floor(Math.abs(l) / 100);
+            console.log(l, mul);
             return Math.pow(2, mul);
         };
 
