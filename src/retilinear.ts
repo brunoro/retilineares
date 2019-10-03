@@ -73,7 +73,6 @@ class Retilinear {
             } else if (al < 250) {
                 mul = -1;
             }
-            console.log(mul, l);
             return Math.pow(2, mul);
         };
 
