@@ -44,6 +44,7 @@ class Retilinear {
         const self = this;
         const toggle = () => self.isPlaying ? self.stop() : self.play();
         this.poly.click(toggle);
+        this.poly.touchstart(toggle);
     }
 
     play() {

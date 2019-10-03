@@ -181,11 +181,13 @@ const stopAll = (ev: MouseEvent) => {
     return true;
 };
 
-canvas.click(function(ev: MouseEvent) {
+const init = () => {
     if (audioContext == null) {
         audioContext = new AudioContext();
         loadSVG();
         document.getElementById('rand').onclick = playRand;
         document.getElementById('stop').onclick = stopAll;
     }
-});
+}
+canvas.click(init);
+canvas.touchstart(init);
