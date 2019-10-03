@@ -42,9 +42,12 @@ class Retilinear {
         this.poly = this.canvas.polygon(this.points).attr('fill', this.color.toString());
 
         const self = this;
-        const toggle = () => self.isPlaying ? self.stop() : self.play();
+        const toggle = () => {
+            console.log('isplaying?', self.isPlaying);
+            self.isPlaying ? self.stop() : self.play();
+        };
         this.poly.click(toggle);
-        this.poly.touchstart(toggle);
+        this.poly.touchleave(toggle);
     }
 
     play() {

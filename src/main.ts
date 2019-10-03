@@ -190,4 +190,4 @@ const init = () => {
     }
 }
 canvas.click(init);
-canvas.touchstart(init);
+canvas.touchleave(init);
