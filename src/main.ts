@@ -134,7 +134,9 @@ const parsePath = (p: SVG.Path): [string, Array<Point>, SVG.Color] => {
 
 // svg stuff
 const loadSVG = async () => {
-    const uri = '/fix.svg';
+    const container = document.getElementById('container');
+    const num = container.className.replace('klass', '');
+    const uri = `/${num}.svg`;
     const resp = await fetch(uri);
     const svgData = await resp.text();
 
@@ -196,8 +198,8 @@ const init = () => {
             audioContext = new AudioContext();
         }
         loadSVG();
-        document.getElementById('rand').onclick = playRand;
-        document.getElementById('stop').onclick = stopAll;
+        // document.getElementById('rand').onclick = playRand;
+        // document.getElementById('stop').onclick = stopAll;
     }
 };
 
