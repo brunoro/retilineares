@@ -103,7 +103,30 @@ const parsePath = (p: SVG.Path): [string, Array<Point>, SVG.Color] => {
     return [id, points, color];
 };
 
-// svg stuff
+let loaded = false;
+const init = () => {
+    if (!loaded) {
+        loaded = true;
+        if ('webkitAudioContext' in window) {
+            // @ts-ignore
+            audioContext = new webkitAudioContext();
+
+            // play a dummy sound to activate context
+            const buffer = audioContext.createBuffer(1, 1, 22050);
+            const source = audioContext.createBufferSource();
+            source.buffer = buffer;
+            source.connect(audioContext.destination);
+            source.start(0);
+        } else {
+            audioContext = new AudioContext();
+        }
+        document.getElementById('initmsg').remove();
+        retilineares.forEach(r => r.setAudioCtx(audioContext));
+        // document.getElementById('rand').onclick = playRand;
+        // document.getElementById('stop').onclick = stopAll;
+    }
+};
+
 const loadSVG = async () => {
     const container = document.getElementById('container');
     const num = container.className.replace('klass', '');
@@ -137,7 +160,7 @@ const loadSVG = async () => {
         const [id, points, color] = parsePath(path);
         const absPoints: Point[] = points.map(([px, py]): Point => [px - offset[0], py - offset[1]]);
         // console.log('abs path', id, absPoints);
-        const ret = new Retilinear(audioContext, canvas, color, absPoints);
+        const ret = new Retilinear(canvas, color, absPoints, init);
         retilineares.set(id, ret);
     });
     draw.select('rect').each(function(i: number, members: SVG.Element[]) {
@@ -145,7 +168,7 @@ const loadSVG = async () => {
         const [id, points, color] = parseRect(rect);
         const absPoints: Point[] = points.map(([px, py]): Point => [px - offset[0], py - offset[1]]);
         // console.log('abs rect', id, absPoints);
-        const ret = new Retilinear(audioContext, canvas, color, absPoints);
+        const ret = new Retilinear(canvas, color, absPoints, init);
         retilineares.set(id, ret);
     });
 
@@ -166,20 +189,4 @@ const stopAll = (ev: MouseEvent) => {
     return true;
 };
 
-let loaded = false;
-const init = () => {
-    if (!loaded) {
-        loaded = true;
-        if ('webkitAudioContext' in window) {
-            // @ts-ignore
-            audioContext = new webkitAudioContext();
-        } else {
-            audioContext = new AudioContext();
-        }
-        loadSVG();
-        // document.getElementById('rand').onclick = playRand;
-        // document.getElementById('stop').onclick = stopAll;
-    }
-};
-
-canvas.click(init);
+loadSVG();

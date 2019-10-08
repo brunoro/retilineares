@@ -2,8 +2,18 @@
 <head>
     <title>retilineares 7</title>
     <style type="text/css">
+        @font-face {
+            font-family: 'squarefont';
+            src: url(/square.ttf);
+        }
         body {
             margin: 0;
+            font-family: 'squarefont';
+        }
+        #initmsg {
+            font-size: 3em;
+            position:absolute;
+            margin:auto;
         }
         #container {
             overflow: hidden;
@@ -15,6 +25,7 @@
 <body>
     <!-- <button id="rand">random</button> -->
     <!-- <button id="stop">stop</button> -->
+    <div id="initmsg">clique em qualquer retilinear</div>
     <div id="container" class="klass7"></div>
     <script src="bundle.js"></script>
 </body>

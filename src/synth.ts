@@ -13,6 +13,10 @@ class BleepSynth {
 
         const osc = this.audioCtx.createOscillator();
         osc.type = freq < 250 ? 'sawtooth' : freq < 440 ? 'sine' : 'triangle';
+        if ('webkitAudioContext' in window) {
+            // @ts-ignore
+            osc.type = freq < 250 ? 2 : freq < 440 ? 0 : 3;
+        }
         const adsr = this.audioCtx.createGain();
         const filter = this.audioCtx.createBiquadFilter();
 
