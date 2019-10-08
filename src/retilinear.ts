@@ -7,7 +7,7 @@ class Retilinear {
     isPlaying: boolean;
     note: number;
 
-    initAudioCtx: () => void;
+    initAudioCtx: (ev: Event) => void;
     audioCtx: AudioContext;
     synth: BleepSynth;
 
@@ -18,7 +18,7 @@ class Retilinear {
     poly: SVG.Polygon;
     cursor: SVG.Shape;
 
-    constructor(canvas: SVG.Doc, color: SVG.Color, points: Array<[number, number]>, initAudioCtx: () => void) {
+    constructor(canvas: SVG.Doc, color: SVG.Color, points: Array<[number, number]>, initAudioCtx: (ev: Event) => void) {
         this.isPlaying = false;
 
         const b = color.brightness();
@@ -48,14 +48,15 @@ class Retilinear {
         this.poly = this.canvas.polygon(this.points).attr('fill', this.color.toString());
 
         const self = this;
-        const toggle = () => self.isPlaying ? self.stop() : self.play();
+        const toggle = (ev: Event) => self.isPlaying ? self.stop() : self.play(ev);
         this.poly.click(toggle);
     }
 
-    play() {
+    play(ev: Event) {
         if (this.audioCtx == null) {
-            this.initAudioCtx();
+            this.initAudioCtx(ev);
         }
+        this.audioCtx.resume();
         this.isPlaying = true;
 
         const [x, y] = this.points[0];

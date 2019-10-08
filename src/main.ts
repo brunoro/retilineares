@@ -104,28 +104,51 @@ const parsePath = (p: SVG.Path): [string, Array<Point>, SVG.Color] => {
 };
 
 let loaded = false;
-const init = () => {
+
+const init = function(ev: Event) {
     if (!loaded) {
         loaded = true;
         if ('webkitAudioContext' in window) {
             // @ts-ignore
             audioContext = new webkitAudioContext();
-
             // play a dummy sound to activate context
-            const buffer = audioContext.createBuffer(1, 1, 22050);
-            const source = audioContext.createBufferSource();
-            source.buffer = buffer;
-            source.connect(audioContext.destination);
-            source.start(0);
         } else {
             audioContext = new AudioContext();
         }
         document.getElementById('initmsg').remove();
+
         retilineares.forEach(r => r.setAudioCtx(audioContext));
-        // document.getElementById('rand').onclick = playRand;
-        // document.getElementById('stop').onclick = stopAll;
     }
+    unlock(ev);
 };
+
+const unlock = function(ev: Event) {
+    console.log('unlock!', ev);
+    if (!loaded) {
+        init(ev);
+    }
+
+    const buffer = audioContext.createBuffer(1, 1, 22050);
+    const source = audioContext.createBufferSource();
+    source.buffer = buffer;
+    source.connect(audioContext.destination);
+    source.start(0);
+
+    if (typeof audioContext.resume === 'function') {
+        audioContext.resume();
+    }
+
+    console.log(audioContext.state);
+    source.onended = () => {
+        source.disconnect();
+        document.removeEventListener('touchstart', unlock, true);
+        document.removeEventListener('touchend', unlock, true);
+    };
+};
+
+document.addEventListener('touchstart', unlock);
+document.addEventListener('touchend', unlock);
+
 
 const loadSVG = async () => {
     const container = document.getElementById('container');
@@ -178,7 +201,7 @@ const loadSVG = async () => {
 const playRand = (ev: MouseEvent) => {
     retilineares.forEach((ret) => {
         if (Math.random() < 0.2) {
-            ret.play();
+            ret.play(ev);
         }
     });
     return true;
