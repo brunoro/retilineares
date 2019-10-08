@@ -56,7 +56,6 @@ class Retilinear {
         if (this.audioCtx == null) {
             this.initAudioCtx(ev);
         }
-        this.audioCtx.resume();
         this.isPlaying = true;
 
         const [x, y] = this.points[0];

@@ -25,7 +25,6 @@ const parseRect = (r: SVG.Rect): [string, Array<Point>, SVG.Color] => {
     const color = new SVG.Color(r.style('fill'));
     const xt = r.screenCTM().extract();
     const t = {x: xt.x, y: xt.y};
-    // console.log('TEE', t);
     const pos: Point = [r.x() + t.x, r.y() + t.y];
     const size: Point = [r.width(), r.height()];
     const points: Array<Point> = [
@@ -34,7 +33,6 @@ const parseRect = (r: SVG.Rect): [string, Array<Point>, SVG.Color] => {
         [pos[0] + size[0], pos[1] + size[1]],
         [pos[0], pos[1] + size[1]]
     ];
-    // console.log('rect', id, points, color);
     return [id, points, color];
 };
 
@@ -44,7 +42,6 @@ const parsePath = (p: SVG.Path): [string, Array<Point>, SVG.Color] => {
     const color = new SVG.Color(p.style('fill'));
     const xt = p.screenCTM().extract();
     const t = {x: xt.x, y: xt.y};
-    // console.log('TEE', t);
     const pos: Point = [p.x() + t.x, p.y() + t.y];
 
     const points: Array<Point> = [];
@@ -99,7 +96,6 @@ const parsePath = (p: SVG.Path): [string, Array<Point>, SVG.Color] => {
             points.push(curr);
         }
     }
-    // console.log('path', id, points, color);
     return [id, points, color];
 };
 
@@ -123,7 +119,6 @@ const init = function(ev: Event) {
 };
 
 const unlock = function(ev: Event) {
-    console.log('unlock!', ev);
     if (!loaded) {
         init(ev);
     }
@@ -138,7 +133,6 @@ const unlock = function(ev: Event) {
         audioContext.resume();
     }
 
-    console.log(audioContext.state);
     source.onended = () => {
         source.disconnect();
         document.removeEventListener('touchstart', unlock, true);
@@ -176,13 +170,11 @@ const loadSVG = async () => {
     });
 
     offset = allPoints.reduce(minPoint);
-    // console.log('OFFSET', offset);
 
     draw.select('path').each(function(i: number, members: SVG.Element[]) {
         const path: SVG.Path = this;
         const [id, points, color] = parsePath(path);
         const absPoints: Point[] = points.map(([px, py]): Point => [px - offset[0], py - offset[1]]);
-        // console.log('abs path', id, absPoints);
         const ret = new Retilinear(canvas, color, absPoints, init);
         retilineares.set(id, ret);
     });
@@ -190,7 +182,6 @@ const loadSVG = async () => {
         const rect: SVG.Rect = this;
         const [id, points, color] = parseRect(rect);
         const absPoints: Point[] = points.map(([px, py]): Point => [px - offset[0], py - offset[1]]);
-        // console.log('abs rect', id, absPoints);
         const ret = new Retilinear(canvas, color, absPoints, init);
         retilineares.set(id, ret);
     });
