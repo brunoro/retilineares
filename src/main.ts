@@ -11,62 +11,6 @@ const retilineares = new Map<string, Retilinear>();
 
 type Point = [number, number];
 
-const rectMin = (r: SVG.Rect): Point => {
-    const pos: Point = [r.x(), r.y()];
-    const size: Point = [r.width(), r.height()];
-    const points: Array<Point> = [
-        pos,
-        [pos[0] + size[0], pos[1]],
-        [pos[0] + size[0], pos[1] + size[1]],
-        [pos[0], pos[1] + size[1]]
-    ];
-    const coords: [number[], number[]] = [points.map(p => p[0]), points.map(p => p[1])];
-    return [Math.min(...coords[0]), Math.min(...coords[1])];
-};
-
-const pathMin = (p: SVG.Path): Point => {
-    const id = p.id();
-    // @ts-ignore
-    const color = new SVG.Color(p.style('fill'));
-    const pos: Point = [p.x(), p.y()];
-
-    const points: Array<Point> = [];
-    let curr = pos;
-    let prev = pos;
-    for (const op of p.array().value) {
-        // console.log(op);
-        // @ts-ignore
-        if (op[0] === 'M') {
-            // @ts-ignore
-            const [_, x, y]: [string, number, number] = op;
-            prev = curr;
-            curr = [x, y];
-        // @ts-ignore
-        } else if (op[0] === 'L') {
-            // @ts-ignore
-            const [_, x, y]: [string, number, number] = op;
-            prev = curr;
-            curr = [x, y];
-            if (points[points.length - 1] !== prev) {
-                points.push(prev);
-            }
-            points.push(curr);
-        // @ts-ignore
-        } else if (op[0] === 'C') {
-            // @ts-ignore
-            const [o, ax, ay, bx, by, x, y]: [string, number, number, number, number, number, number] = op;
-            prev = curr;
-            curr = [x, y];
-            if (points[points.length - 1] !== prev) {
-                points.push(prev);
-            }
-            points.push(curr);
-        }
-    }
-    const coords: [number[], number[]] = [points.map(p => p[0]), points.map(p => p[1])];
-    return [Math.min(...coords[0]), Math.min(...coords[1])];
-};
-
 const minPoint = ([ax, ay]: Point, [bx, by]: Point): Point => {
     return [Math.min(ax, bx), Math.min(ay, by)];
 };
@@ -79,7 +23,9 @@ const parseRect = (r: SVG.Rect): [string, Array<Point>, SVG.Color] => {
     const id = r.id();
     // @ts-ignore
     const color = new SVG.Color(r.style('fill'));
-    const pos: Point = [r.x(), r.y()];
+    const xt = r.screenCTM().extract();
+    const t = {x: xt.transformedX, y: xt.transformedY};
+    const pos: Point = [r.x() + t.x, r.y() + t.y];
     const size: Point = [r.width(), r.height()];
     const points: Array<Point> = [
         pos,
@@ -87,6 +33,7 @@ const parseRect = (r: SVG.Rect): [string, Array<Point>, SVG.Color] => {
         [pos[0] + size[0], pos[1] + size[1]],
         [pos[0], pos[1] + size[1]]
     ];
+    // console.log('rect', id, points, color);
     return [id, points, color];
 };
 
@@ -94,25 +41,46 @@ const parsePath = (p: SVG.Path): [string, Array<Point>, SVG.Color] => {
     const id = p.id();
     // @ts-ignore
     const color = new SVG.Color(p.style('fill'));
-    const pos: Point = [p.x(), p.y()];
+    const xt = p.screenCTM().extract();
+    const t = {x: xt.transformedX, y: xt.transformedY};
+    const pos: Point = [p.x() + t.x, p.y() + t.y];
 
     const points: Array<Point> = [];
     let curr = pos;
     let prev = pos;
     for (const op of p.array().value) {
-        // console.log(op);
         // @ts-ignore
         if (op[0] === 'M') {
             // @ts-ignore
             const [_, x, y]: [string, number, number] = op;
             prev = curr;
-            curr = [x, y];
+            curr = [x + t.x, y + t.y];
+        // @ts-ignore
+        } else if (op[0] === 'H') {
+            // @ts-ignore
+            const [_, x]: [string, number] = op;
+            prev = curr;
+            curr = [x + t.x, prev[1]];
+            if (dist(curr, prev) > 1) {
+                points.push(prev);
+            }
+            points.push(curr);
+        // @ts-ignore
+        } else if (op[0] === 'V') {
+            // @ts-ignore
+            const [_, y]: [string, number] = op;
+            prev = curr;
+            curr = [prev[0], y + t.y];
+            if (dist(curr, prev) > 1) {
+                points.push(prev);
+            }
+            points.push(curr);
         // @ts-ignore
         } else if (op[0] === 'L') {
             // @ts-ignore
             const [_, x, y]: [string, number, number] = op;
             prev = curr;
-            curr = [x, y];
+            curr = [x + t.x, y + t.y];
             if (dist(curr, prev) > 1) {
                 points.push(prev);
             }
@@ -122,13 +90,14 @@ const parsePath = (p: SVG.Path): [string, Array<Point>, SVG.Color] => {
             // @ts-ignore
             const [o, ax, ay, bx, by, x, y]: [string, number, number, number, number, number, number] = op;
             prev = curr;
-            curr = [x, y];
+            curr = [x + t.x, y + t.y];
             if (dist(curr, prev) > 1) {
                 points.push(prev);
             }
             points.push(curr);
         }
     }
+    console.log('path', id, points, color);
     return [id, points, color];
 };
 
@@ -145,15 +114,21 @@ const loadSVG = async () => {
     draw.svg(svgData);
 
     let offset: Point = [0, 0];
+    let allPoints: Point[] = [];
+
     draw.select('path').each(function(i: number, members: SVG.Element[]) {
-        const pOff = pathMin(this);
-        offset = minPoint(offset, pOff);
+        const path: SVG.Path = this;
+        const [id, points, color] = parsePath(path);
+        allPoints.push(...points);
     });
     draw.select('rect').each(function(i: number, members: SVG.Element[]) {
-        const rOff = rectMin(this);
-        offset = minPoint(offset, rOff);
+        const rect: SVG.Rect = this;
+        const [id, points, color] = parseRect(rect);
+        allPoints.push(...points);
     });
-    offset = [offset[0] - 5, offset[1] - 5];
+
+    offset = allPoints.reduce(minPoint);
+    console.log('OFFSET', offset);
 
     draw.select('path').each(function(i: number, members: SVG.Element[]) {
         const path: SVG.Path = this;
