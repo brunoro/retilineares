@@ -10,8 +10,19 @@
             margin: 0;
             font-family: 'squarefont';
         }
-        #initmsg {
-            font-size: 3em;
+        .lil {
+            font-size: 1em;
+        }
+        .mid {
+            font-size: 2em;
+        }
+        .big {
+            font-size: 4em;
+        }
+        #initmsg p {
+            margin: 0;
+        }
+        .msg {
             position:absolute;
             margin:auto;
         }
@@ -25,7 +36,12 @@
 <body>
     <!-- <button id="rand">random</button> -->
     <!-- <button id="stop">stop</button> -->
-    <div id="initmsg">clique em qualquer<br>retilinear</div>
+    <div class="msg" id="initmsg">
+        <p>eita</p>
+    </div>
+    <div class="msg">
+        <p>eita</p>
+    </div>
     <div id="container" class="klass11"></div>
     <script src="bundle.js"></script>
 </body>
